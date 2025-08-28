@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebDynpro xmlns="http://www.sap.com/wd/webdynpro">
+  <View name="RegisterView">
+    <Title>Register</Title>
+    <TransparentContainer id="HeaderContainer" design="Transparent" layout="VerticalLayout" padding="Medium">
+      <!-- Styling for the red background and white text would be applied via CSS in a real application -->
+      <TextView id="JainMitraLogo" text="Jain Mitra" design="HeaderText" semanticColor="StandardTextInverted"/>
+      <TextView id="ConnectText" text="Connect with friends!" design="Heading1" semanticColor="StandardTextInverted"/>
+      <TextView id="ShareText" text="Share what's new and life moments with your friends." design="Standard" semanticColor="StandardTextInverted"/>
+    </TransparentContainer>
+
+    <TransparentContainer id="ContentContainer" design="Transparent" layout="VerticalLayout" padding="Medium">
+      <MessageArea id="ViewMessageArea"/>
+      <TextView id="RegisterTitle" text="Register" design="Heading1" semanticColor="CriticalText"/>
+      <TextView id="AccountCreationText" text="Create your Jain Mitra Account!" design="Standard"/>
+
+      <FormContainer id="RegistrationForm" design="FormLayout" labelWidth="30%" elementWidth="70%">
+        <FormElement id="FormElemUsername">
+          <Label id="LabelUsername" text="Username" labelFor="InputUsername"/>
+          <InputField id="InputUsername" value="{/registerData/username}" width="100%"/>
+        </FormElement>
+        <FormElement id="FormElemEmail">
+          <Label id="LabelEmail" text="E-mail address" labelFor="InputEmail"/>
+          <InputField id="InputEmail" value="{/registerData/email}" width="100%"/>
+        </FormElement>
+        <FormElement id="FormElemPassword">
+          <Label id="LabelPassword" text="Password" labelFor="InputPassword"/>
+          <InputField id="InputPassword" value="{/registerData/password}" type="PasswordField" width="100%"/>
+        </FormElement>
+        <FormElement id="FormElemConfirmPassword">
+          <Label id="LabelConfirmPassword" text="Confirm Password" labelFor="InputConfirmPassword"/>
+          <InputField id="InputConfirmPassword" value="{/registerData/confirmPassword}" type="PasswordField" width="100%"/>
+        </FormElement>
+        <FormElement id="FormElemGender">
+          <Label id="LabelGender" text="Gender" labelFor="DropDownGender"/>
+          <DropDownByKey id="DropDownGender" value="{/registerData/genderKey}" dataSource="{/genders}" valueKey="key" valueText="text" width="100%">
+            <!-- The first item "Gender" is likely a placeholder -->
+            <Item text="Gender" key=""/>
+          </DropDownByKey>
+        </FormElement>
+      </FormContainer>
+
+      <FlowLayout id="TermsAndPolicyLayout" wrap="true" hAlign="Left" vAlign="Middle" width="100%">
+        <CheckBox id="AgreeTermsCheckbox" checked="{/registerData/agreedToTerms}" onAction="onActionAgreeTerms"/>
+        <TextView id="TermsStaticText" text="By creating your account, you agree to our "/>
+        <Link id="TermsOfUseLink" text="Terms of Use &amp; Privacy Policy" onAction="onActionShowTermsAndPolicy"/>
+      </FlowLayout>
+
+      <Button id="RegisterButton" text="Let's Go !" onAction="onActionLetGo" design="Emphasized" width="100%"/>
+    </TransparentContainer>
+  </View>
+
+  <Controller name="RegisterViewController">
+    <Context>
+      <Node name="registerData" type="com.example.wd.RegisterData" cardinality="0..1" singleton="true">
+        <Attribute name="username" type="string"/>
+        <Attribute name="email" type="string"/>
+        <Attribute name="password" type="string"/>
+        <Attribute name="confirmPassword" type="string"/>
+        <Attribute name="genderKey" type="string"/>
+        <Attribute name="agreedToTerms" type="boolean" defaultValue="false"/>
+      </Node>
+      <Node name="genders" type="com.sap.dictionary.string_string" cardinality="0..n">
+        <Attribute name="key" type="string"/>
+        <Attribute name="text" type="string"/>
+      </Node>
+      <Node name="viewProperties" type="com.sap.ide.webdynpro.uielement.properties.IViewProperties" cardinality="0..1" singleton="true">
+        <Attribute name="registerButtonEnabled" type="boolean" defaultValue="false"/>
+      </Node>
+    </Context>
+    <Methods>
+      <Method name="onInit">
+        <Implementation>
+          <![CDATA[
+            // Initialize gender dropdown options
+            wdContext.nodeGenders().createAndAddElement().setKey("male").setText("Male");
+            wdContext.nodeGenders().createAndAddElement().setKey("female").setText("Female");
+            wdContext.nodeGenders().createAndAddElement().setKey("other").setText("Other");
+
+            // Initialize form data node
+            wdContext.nodeRegisterData().createAndSetConfiguredElement();
+
+            // Disable button initially
+            wdContext.currentViewPropertiesElement().setRegisterButtonEnabled(false);
+          ]]>
+        </Implementation>
+      </Method>
+      <Method name="onActionAgreeTerms">
+        <Parameters>
+          <Parameter name="id" type="string"/>
+          <Parameter name="checked" type="boolean"/>
+        </Parameters>
+        <Implementation>
+          <![CDATA[
+            wdContext.currentRegisterDataElement().setAgreedToTerms(checked);
+            wdContext.currentViewPropertiesElement().setRegisterButtonEnabled(checked);
+          ]]>
+        </Implementation>
+      </Method>
+      <Method name="onActionShowTermsAndPolicy">
+        <Implementation>
+          <![CDATA[
+            wdThis.wdGetAPI().getComponent().getMessageManager().reportSuccess("Navigating to Terms of Use & Privacy Policy.");
+            // Example: wdThis.wdGetAPI().getNavigationHandler().navigate("TermsAndPrivacyView");
+          ]]>
+        </Implementation>
+      </Method>
+      <Method name="onActionLetGo">
+        <Implementation>
+          <![CDATA[
+            com.example.wd.RegisterData registerData = wdContext.currentRegisterDataElement();
+            String username = registerData.getUsername();
+            String email = registerData.getEmail();
+            String password = registerData.getPassword();
+            String confirmPassword = registerData.getConfirmPassword();
+            String gender = registerData.getGenderKey();
+            boolean agreedToTerms = registerData.getAgreedToTerms();
+
+            if (!agreedToTerms) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("You must agree to the Terms of Use & Privacy Policy.");
+                return;
+            }
+            if (username == null || username.trim().isEmpty()) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("Username cannot be empty.");
+                return;
+            }
+            if (email == null || email.trim().isEmpty()) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("E-mail address cannot be empty.");
+                return;
+            }
+            if (password == null || password.trim().isEmpty()) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("Password cannot be empty.");
+                return;
+            }
+            if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("Confirm Password cannot be empty.");
+                return;
+            }
+            if (!password.equals(confirmPassword)) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("Passwords do not match.");
+                return;
+            }
+            if (gender == null || gender.trim().isEmpty()) {
+                wdThis.wdGetAPI().getComponent().getMessageManager().reportError("Please select your Gender.");
+                return;
+            }
+
+            // Simulate a successful registration
+            wdThis.wdGetAPI().getComponent().getMessageManager().reportSuccess("Registration successful for user: " + username);
+            // In a real application, you would call a backend service here.
+            // Example: wdThis.wdGetAPI().getNavigationHandler().navigate("WelcomePageView");
+          ]]>
+        </Implementation>
+      </Method>
+    </Methods>
+  </Controller>
+</WebDynpro>
