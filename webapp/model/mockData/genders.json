@@ -1,0 +1,16 @@
+{
+  "genders": [
+    {
+      "key": "male",
+      "text": "Male"
+    },
+    {
+      "key": "female",
+      "text": "Female"
+    },
+    {
+      "key": "other",
+      "text": "Other"
+    }
+  ]
+}

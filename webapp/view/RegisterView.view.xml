@@ -1,18 +1,56 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mvc:View xmlns:mvc="sap.ui.core.mvc"
-  xmlns="sap.m"
-  xmlns:layout="sap.ui.layout"
-  xmlns:form="sap.ui.layout.form"
-  xmlns:core="sap.ui.core"
-  xmlns:richtexteditor="sap.ui.richtexteditor"
-  xmlns:viz="sap.viz.ui5"
-  controllerName="preview.app.controller.RegisterView"
-  displayBlock="true">
-  <Page title="RegisterView" enableScrolling="true">
-    <content>
-      <Title id="title_jq0bsl8d" text="Register"/>
-      <Text id="HeaderContainer"/>
-      <Text id="ContentContainer"/>
-    </content>
-  </Page>
+<mvc:View
+	controllerName="converted.registerview.controller.RegisterView"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:layout="sap.ui.layout"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:core="sap.ui.core"
+	displayBlock="true"
+          xmlns:commons="sap.ui.commons">
+	<Page title="Register" enableScrolling="true">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<FlexBox direction="Column" alignItems="Center" justifycontent="SpaceBetween">
+					<Image src="images/JainMitraLogo.png" height="100px" width="100px"/>
+					<Text text="Jain Mitra" class="headerText" />
+					<Text text="Connect with friends!" class="headerText" />
+					<Text text="Share what's new and life moments with your friends." />
+				</FlexBox>
+			</VBox>
+			<VBox class="sapUiSmallMargin">
+				<Title text="Register" level="H2" class="registerTitle" />
+				<Text text="Create your Jain Mitra Account!" class="registerSubTitle" />
+				<form:SimpleForm id="RegistrationForm" labelWidth="30%" editable="true" layout="ResponsiveGridLayout" adjustLabelWidth="true">
+					<form:content>
+						<form:FormElement label="Username">
+							<Input value="{registerData>/username}" />
+						</form:FormElement>
+						<form:FormElement label="E-mail address">
+							<Input value="{registerData>/email}" />
+						</form:FormElement>
+						<form:FormElement label="Password">
+							<Input type="Password" value="{registerData>/password}" />
+						</form:FormElement>
+						<form:FormElement label="Confirm Password">
+							<Input type="Password" value="{registerData>/confirmPassword}" />
+						</form:FormElement>
+						<form:FormElement label="Gender">
+							<Select value="{registerData>/genderKey}" >
+								<items>
+									<core:Item key="male" text="Male" />
+									<core:Item key="female" text="Female" />
+									<core:Item key="other" text="Other" />
+								</items>
+							</Select>
+						</form:FormElement>
+					</form:content>
+				</form:SimpleForm>
+				<HBox>
+					<CheckBox text="By creating your account, you agree to our" checked="{registerData>/agreedToTerms}" press="onActionAgreeTerms" />
+					<Link text="Terms of Use &amp; Privacy Policy" press="onActionShowTermsAndPolicy" />
+				</HBox>
+				<Button text="Let's Go !" type="Emphasized" press="onActionLetGo" />
+			</VBox>
+		</content>
+	</Page>
 </mvc:View>
